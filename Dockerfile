@@ -32,4 +32,4 @@ RUN npm install --only=production
 COPY --from=build /home/node/app/dist ./dist
 
 # Definir o comando para rodar a aplicação em produção
-CMD [ "npm", "run", "dev" ]
+CMD [ "npm", "run", "start" ]
