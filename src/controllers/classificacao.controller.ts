@@ -6,11 +6,99 @@ import { classificacaoRepository } from "../repositories/Classificacao";
 
 @Controller("/classificacao")
 export class classificacaoController {
+  /**
+   * @swagger
+   * /classificacao/list:
+   *   get:
+   *     summary: Retorna uma lista paginada de classificacao
+   *     tags: [Classificação]
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Número da página
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Número de itens por página
+   *     responses:
+   *       200:
+   *         description: Lista de classificacao
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Classificacao'
+   *                 meta:
+   *                   type: object
+   *                   properties:
+   *                     page:
+   *                       type: integer
+   *                     limit:
+   *                       type: integer
+   *                     total:
+   *                       type: integer
+   *                     totalPages:
+   *                       type: integer
+   */
+
   @Get("/list")
   async getAll(req: Request, res: Response): Promise<void> {
-    const classificacao = await classificacaoRepository.find();
-    return RouteResponse.success(res, classificacao);
+    const page = parseInt(req.query.page as string) || 1; // Página padrão: 1
+    const limit = parseInt(req.query.limit as string) || 10; // Limite padrão: 10
+
+    // Calcula o número de itens a serem ignorados
+    const skip = (page - 1) * limit;
+
+    // Busca os dados paginados e o total de registros
+    const [data, total] = await classificacaoRepository.findAndCount({
+      skip,
+      take: limit,
+    });
+
+    // Retorna os dados e metadados de paginação
+    return RouteResponse.success(res, {
+      ...data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   }
+
+  /**
+   * @swagger
+   * /classificacao/{id}:
+   *   get:
+   *     summary: Retorna uma classificação pelo ID
+   *     tags: [Classificação]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: integer
+   *         required: true
+   *         description: ID da classificação
+   *     responses:
+   *       200:
+   *         description: Classificação encontrada
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Classificação'
+   *       404:
+   *         description: Classificação não encontrada
+   */
 
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
@@ -24,11 +112,60 @@ export class classificacaoController {
     }
   }
 
+  /**
+   * @swagger
+   * /classificacao/create:
+   *   post:
+   *     summary: Cria uma nova classificação
+   *     tags: [Classificação]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Classificação'
+   *     responses:
+   *       201:
+   *         description: Classificação criada com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Classificação
+   */
+
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
     const classificacao = await classificacaoRepository.create(req.body);
     return RouteResponse.success(res, classificacao);
   }
+
+  /**
+   * @swagger
+   * /classificacao/{id}:
+   *   put:
+   *     summary: Atualiza uma classificação pelo ID
+   *     tags: [Classificação]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: integer
+   *         required: true
+   *         description: ID da classificação
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Classificação'
+   *     responses:
+   *       200:
+   *         description: Classificação atualizada
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Classificação'
+   */
 
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
@@ -40,6 +177,24 @@ export class classificacaoController {
       return RouteResponse.notFound(res, "Classificação não encontrada");
     }
   }
+
+  /**
+   * @swagger
+   * /classificacao/{id}:
+   *   delete:
+   *     summary: Deleta uma classificação pelo ID
+   *     tags: [Classificação]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: integer
+   *         required: true
+   *         description: ID da classificação
+   *     responses:
+   *       204:
+   *         description: Classificação deletada com sucesso
+   */
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {

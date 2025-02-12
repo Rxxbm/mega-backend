@@ -23,7 +23,6 @@ export function registerControllers(app: App, path: string) {
     ) {
       const controller = require(filePath);
       const controllerInstance = new controller[Object.keys(controller)[0]](); // Instancia o controlador
-      console.log(`${Object.keys(controller)[0]} instanciado!`); // Verificação para garantir que está sendo instanciado
       registerRoutes(app, controllerInstance); // Registra as rotas
     }
   });

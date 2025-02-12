@@ -30,9 +30,4 @@ export const AppDataSource = new DataSource({
   ], // Ajuste conforme sua estrutura
   migrations: ["src/migration/**/*.ts"],
   subscribers: ["src/subscriber/**/*.ts"],
-  extra: {
-    ssl: {
-      rejectUnauthorized: false, // Permite SSL sem validação do certificado
-    },
-  },
 });

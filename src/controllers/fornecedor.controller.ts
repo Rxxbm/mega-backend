@@ -108,6 +108,27 @@ export class FornecedorController {
     }
   }
 
+  /**
+   * @swagger
+   * /fornecedor/create:
+   *   post:
+   *     summary: Cria um novo fornecedor
+   *     tags: [Fornecedor]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Fornecedor'
+   *     responses:
+   *       201:
+   *         description: Fornecedor criado com sucesso
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Fornecedor'
+   */
+
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
     const Fornecedor = FornecedorRepository.create(req.body);
