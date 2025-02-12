@@ -4,13 +4,22 @@ import swaggerDocs from "./config/swagger";
 import express from "express";
 import { registerControllers } from "./config/routes";
 import logger from "./config/logger";
+import cors from "cors";
 import morganMiddleware from "./config/morgan";
 import ignoreFavicon from "./config/favicon";
 import listRoutes from "./config/routesLogger";
 import { AppDataSource } from "./config/data-source";
-import { Fornecedor } from "./entities/Fornecedor";
 
 const app = express();
+
+// Configuração do CORS
+const corsOptions = {
+  origin: "*", // Permitindo todas as origens. Você pode especificar origens específicas aqui, se necessário
+  methods: ["GET", "POST", "PUT", "DELETE"], // Métodos permitidos
+  allowedHeaders: ["Content-Type", "Authorization"], // Cabeçalhos permitidos
+};
+
+app.use(cors(corsOptions)); // Usando o CORS
 
 app.use(express.json());
 
@@ -25,15 +34,6 @@ app.use(morganMiddleware);
 // Dinamicamente registra todos os controllers nas rotas
 
 const port = process.env.PORT || 3000;
-async function testConnection() {
-  try {
-    const repo = AppDataSource.getRepository(Fornecedor);
-    const fornecedores = await repo.find();
-    console.log(fornecedores);
-  } catch (error) {
-    console.error("Error connecting to the database", error);
-  }
-}
 // Chama a função para listar as rotas
 AppDataSource.initialize()
   .then(() => {
@@ -46,7 +46,6 @@ AppDataSource.initialize()
         `Documentação disponível em http://localhost:${port}/api-docs`
       );
       listRoutes(app);
-      testConnection();
     });
   })
   .catch((error) => {
