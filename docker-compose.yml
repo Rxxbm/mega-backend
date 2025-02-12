@@ -1,0 +1,11 @@
+services:
+  app:
+    build: .
+    ports:
+      - "${PORT}:${PORT}"
+    volumes:
+      - .:/home/node/app
+      - /home/node/app/node_modules
+      - /home/node/app/dist
+    env_file:
+      - .env
