@@ -14,7 +14,12 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: `http://localhost:${process.env.PORT || 80}`,
+        url: `http://localhost:${process.env.PORT || 3000}`,
+        description: "Servidor de desenvolvimento",
+      },
+      {
+        url: "https://mega-backend-35me.onrender.com/",
+        description: "Servidor de produção",
       },
     ],
     components: {
