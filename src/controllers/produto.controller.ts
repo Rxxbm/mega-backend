@@ -85,7 +85,7 @@ export class ProdutoController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da obra
    *     responses:
@@ -134,7 +134,8 @@ export class ProdutoController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const produto = await produtoRepository.create(req.body);
+    const produto = produtoRepository.create(req.body);
+    await produtoRepository.save(produto);
     return RouteResponse.success(res, produto);
   }
 
@@ -148,7 +149,7 @@ export class ProdutoController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da obra
    *     requestBody:
@@ -170,7 +171,7 @@ export class ProdutoController {
 
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const produto = await produtoRepository.update(id, req.body);
     if (produto) {
       return RouteResponse.success(res, produto);
@@ -189,7 +190,7 @@ export class ProdutoController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da obra
    *     responses:
@@ -201,7 +202,7 @@ export class ProdutoController {
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await produtoRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }

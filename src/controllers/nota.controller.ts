@@ -87,7 +87,7 @@ export class notaController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da nota
    *     responses:
@@ -103,9 +103,9 @@ export class notaController {
 
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const nota = await notaRepository.findOne({
-      where: { id: id },
+      where: { id },
       relations: ["cliente", "obra", "produtos", "produtos.produto"],
     });
     if (nota) {
@@ -138,13 +138,13 @@ export class notaController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const nota = await notaRepository.create(req.body);
+    const nota = notaRepository.create(req.body);
     await notaRepository.save(nota);
 
-    for (const produtoData of req.body.produtos) {
+    for (const produtoData of req.body.produtos_nota) {
       const notaProduto = notaProdutoRepository.create({
         ...produtoData,
-        nota,
+        nota: nota[0].id,
       });
       await notaProdutoRepository.save(notaProduto);
     }
@@ -162,7 +162,7 @@ export class notaController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da nota
    *     requestBody:
@@ -184,7 +184,7 @@ export class notaController {
 
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const notaData = req.body;
 
     const nota = await notaRepository.findOne({
@@ -219,7 +219,7 @@ export class notaController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da nota
    *     responses:

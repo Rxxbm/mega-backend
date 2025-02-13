@@ -68,7 +68,7 @@ export class AluguelController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do aluguel
    *     responses:
@@ -84,7 +84,7 @@ export class AluguelController {
 
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const aluguel = await aluguelRepository.findOne({
       where: { id: id.toString() },
       relations: ["cliente", "obra", "produtos", "produtos.produto"],
@@ -118,10 +118,12 @@ export class AluguelController {
     const aluguel = aluguelRepository.create(req.body);
     await aluguelRepository.save(aluguel);
 
+    const id = aluguel[0].id;
+
     for (const produtoData of req.body.produtos) {
       const aluguelProduto = aluguelProdutoRepository.create({
         ...produtoData,
-        aluguel,
+        aluguel: id,
       });
       await aluguelProdutoRepository.save(aluguelProduto);
     }
@@ -139,7 +141,7 @@ export class AluguelController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do aluguel
    *     requestBody:
@@ -152,10 +154,9 @@ export class AluguelController {
    *       200:
    *         description: Aluguel atualizado
    */
-
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const aluguelData = req.body;
 
     const aluguel = await aluguelRepository.findOne({
@@ -190,14 +191,14 @@ export class AluguelController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do aluguel
    */
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await aluguelRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }

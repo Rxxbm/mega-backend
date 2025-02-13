@@ -86,7 +86,7 @@ export class ClienteController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do cliente
    *     responses:
@@ -134,7 +134,8 @@ export class ClienteController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const cliente = await clienteRepository.create(req.body);
+    const cliente = clienteRepository.create(req.body);
+    await clienteRepository.save(cliente);
     return RouteResponse.success(res, cliente);
   }
 
@@ -148,7 +149,7 @@ export class ClienteController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do cliente
    *     requestBody:
@@ -182,7 +183,7 @@ export class ClienteController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do cliente
    *     responses:
