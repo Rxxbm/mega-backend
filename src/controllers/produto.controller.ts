@@ -2,16 +2,16 @@ import { Request, Response } from "express";
 import { Controller } from "../decorators/http/controller";
 import { Delete, Get, Post, Put } from "../decorators/http/methods";
 import { RouteResponse } from "../common/http-responses";
-import { classificacaoRepository } from "../repositories/Classificacao";
+import { produtoRepository } from "../repositories/Produto";
 
-@Controller("/classificacao")
-export class classificacaoController {
+@Controller("/produto")
+export class ProdutoController {
   /**
    * @swagger
-   * /classificacao/list:
+   * /produto/list:
    *   get:
-   *     summary: Retorna uma lista paginada de classificacao
-   *     tags: [Classificacao]
+   *     summary: Retorna uma lista paginada de produtos
+   *     tags: [Produto]
    *     parameters:
    *       - in: query
    *         name: page
@@ -27,7 +27,7 @@ export class classificacaoController {
    *         description: Número de itens por página
    *     responses:
    *       200:
-   *         description: Lista de classificacao
+   *         description: Lista de produto
    *         content:
    *           application/json:
    *             schema:
@@ -36,7 +36,7 @@ export class classificacaoController {
    *                 data:
    *                   type: array
    *                   items:
-   *                     $ref: '#/components/schemas/Classificacao'
+   *                     $ref: '#/components/schemas/Produto'
    *                 meta:
    *                   type: object
    *                   properties:
@@ -49,7 +49,6 @@ export class classificacaoController {
    *                     totalPages:
    *                       type: integer
    */
-
   @Get("/list")
   async getAll(req: Request, res: Response): Promise<void> {
     const page = parseInt(req.query.page as string) || 1; // Página padrão: 1
@@ -59,7 +58,7 @@ export class classificacaoController {
     const skip = (page - 1) * limit;
 
     // Busca os dados paginados e o total de registros
-    const [data, total] = await classificacaoRepository.findAndCount({
+    const [data, total] = await produtoRepository.findAndCount({
       skip,
       take: limit,
     });
@@ -78,128 +77,132 @@ export class classificacaoController {
 
   /**
    * @swagger
-   * /classificacao/{id}:
+   * /produto/{id}:
    *   get:
-   *     summary: Retorna uma classificação pelo ID
-   *     tags: [Classificacao]
+   *     summary: Retorna uma obra pelo ID
+   *     tags: [Produto]
    *     parameters:
    *       - in: path
    *         name: id
    *         schema:
    *           type: integer
    *         required: true
-   *         description: ID da classificação
+   *         description: ID da obra
    *     responses:
    *       200:
-   *         description: Classificação encontrada
+   *         description: Obra encontrada
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/Classificacao'
+   *               $ref: '#/components/schemas/Produto'
    *       404:
-   *         description: Classificação não encontrada
+   *         description: Obra não encontrada
    */
 
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
-    const classificacao = await classificacaoRepository.findOneBy({
+    const produto = await produtoRepository.findOneBy({
       id: req.params.id,
     });
-    if (classificacao) {
-      return RouteResponse.success(res, classificacao);
+    if (produto) {
+      return RouteResponse.success(res, produto);
     } else {
-      return RouteResponse.notFound(res, "Classificação não encontrada");
+      return RouteResponse.notFound(res, "Produto não encontrada");
     }
   }
 
   /**
    * @swagger
-   * /classificacao/create:
+   * /produto/create:
    *   post:
-   *     summary: Cria uma nova classificação
-   *     tags: [Classificacao]
+   *     summary: Cria uma nova obra
+   *     tags: [Produto]
    *     requestBody:
    *       required: true
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/Classificacao'
+   *             $ref: '#/components/schemas/Produto'
    *     responses:
-   *       201:
-   *         description: Classificação criada com sucesso
+   *       200:
+   *         description: Obra criada
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/Classificacao'
+   *               $ref: '#/components/schemas/Produto'
    */
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const classificacao = await classificacaoRepository.create(req.body);
-    return RouteResponse.success(res, classificacao);
+    const produto = await produtoRepository.create(req.body);
+    return RouteResponse.success(res, produto);
   }
 
   /**
    * @swagger
-   * /classificacao/{id}:
+   * /produto/{id}:
    *   put:
-   *     summary: Atualiza uma classificação pelo ID
-   *     tags: [Classificacao]
+   *     summary: Atualiza uma obra pelo ID
+   *     tags: [Produto]
    *     parameters:
    *       - in: path
    *         name: id
    *         schema:
    *           type: integer
    *         required: true
-   *         description: ID da classificação
+   *         description: ID da obra
    *     requestBody:
    *       required: true
    *       content:
    *         application/json:
    *           schema:
-   *             $ref: '#/components/schemas/Classificacao'
+   *             $ref: '#/components/schemas/Produto'
    *     responses:
    *       200:
-   *         description: Classificação atualizada
+   *         description: Obra atualizada
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/Classificação'
+   *               $ref: '#/components/schemas/Produto'
+   *       404:
+   *         description: Obra não encontrada
    */
 
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
     const id = parseInt(req.params.id);
-    const classificacao = await classificacaoRepository.update(id, req.body);
-    if (classificacao) {
-      return RouteResponse.success(res, classificacao);
+    const produto = await produtoRepository.update(id, req.body);
+    if (produto) {
+      return RouteResponse.success(res, produto);
     } else {
-      return RouteResponse.notFound(res, "Classificação não encontrada");
+      return RouteResponse.notFound(res, "Produto não encontrado");
     }
   }
 
   /**
    * @swagger
-   * /classificacao/{id}:
+   * /produto/{id}:
    *   delete:
-   *     summary: Deleta uma classificação pelo ID
-   *     tags: [Classificacao]
+   *     summary: Deleta uma obra pelo ID
+   *     tags: [Produto]
    *     parameters:
    *       - in: path
    *         name: id
    *         schema:
    *           type: integer
    *         required: true
-   *         description: ID da classificação
+   *         description: ID da obra
    *     responses:
-   *       204:
-   *         description: Classificacao deletada com sucesso
+   *       200:
+   *         description: Obra deletada
+   *       404:
+   *         description: Obra não encontrada
    */
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {
     const id = parseInt(req.params.id);
-    await classificacaoRepository.delete(id);
+    await produtoRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }
 }

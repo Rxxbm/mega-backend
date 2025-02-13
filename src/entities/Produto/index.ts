@@ -23,7 +23,7 @@ export class Produto extends BaseEntity {
   unidade: string;
 
   @Column("decimal", { nullable: true, default: null })
-  ideniacao: number | null;
+  idenizacao: number | null;
 
   @OneToMany(() => AluguelProduto, (aluguelProduto) => aluguelProduto.produto)
   alugueisProduto: AluguelProduto[];

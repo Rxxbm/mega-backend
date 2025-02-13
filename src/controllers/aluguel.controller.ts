@@ -7,6 +7,49 @@ import { aluguelProdutoRepository } from "../repositories/AluguelProduto";
 
 @Controller("/aluguel")
 export class AluguelController {
+  /**
+   * @swagger
+   * /aluguel/list:
+   *   get:
+   *     summary: Retorna uma lista paginada de alugueis
+   *     tags: [Aluguel]
+   *     parameters:
+   *       - in: query
+   *         name: page
+   *         schema:
+   *           type: integer
+   *           default: 1
+   *         description: Número da página
+   *       - in: query
+   *         name: limit
+   *         schema:
+   *           type: integer
+   *           default: 10
+   *         description: Número de itens por página
+   *     responses:
+   *       200:
+   *         description: Lista de alugueis
+   *         content:
+   *           application/json:
+   *             schema:
+   *               type: object
+   *               properties:
+   *                 data:
+   *                   type: array
+   *                   items:
+   *                     $ref: '#/components/schemas/Aluguel'
+   *                 meta:
+   *                   type: object
+   *                   properties:
+   *                     page:
+   *                       type: integer
+   *                     limit:
+   *                       type: integer
+   *                     total:
+   *                       type: integer
+   *                     totalPages:
+   *                       type: integer
+   */
   @Get("/list")
   async getAll(req: Request, res: Response): Promise<void> {
     const aluguel = await aluguelRepository.find({
@@ -14,6 +57,30 @@ export class AluguelController {
     });
     return RouteResponse.success(res, aluguel);
   }
+
+  /**
+   * @swagger
+   * /aluguel/{id}:
+   *   get:
+   *     summary: Retorna um aluguel pelo ID
+   *     tags: [Aluguel]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: integer
+   *         required: true
+   *         description: ID do aluguel
+   *     responses:
+   *       200:
+   *         description: Aluguel encontrado
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Aluguel'
+   *       404:
+   *         description: Aluguel não encontrado
+   */
 
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
@@ -28,6 +95,23 @@ export class AluguelController {
       return RouteResponse.notFound(res, "Aluguel não encontrado");
     }
   }
+
+  /**
+   * @swagger
+   * /aluguel/create:
+   *   post:
+   *     summary: Cria um novo aluguel
+   *     tags: [Aluguel]
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Aluguel'
+   *     responses:
+   *       200:
+   *         description: Aluguel criado
+   */
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
@@ -44,6 +128,30 @@ export class AluguelController {
 
     return RouteResponse.success(res, aluguel);
   }
+
+  /**
+   * @swagger
+   * /aluguel/{id}:
+   *   put:
+   *     summary: Atualiza um aluguel
+   *     tags: [Aluguel]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: integer
+   *         required: true
+   *         description: ID do aluguel
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             $ref: '#/components/schemas/Aluguel'
+   *     responses:
+   *       200:
+   *         description: Aluguel atualizado
+   */
 
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
@@ -71,6 +179,21 @@ export class AluguelController {
 
     return RouteResponse.success(res, aluguel);
   }
+
+  /**
+   * @swagger
+   * /aluguel/{id}:
+   *   delete:
+   *     summary: Deleta um aluguel pelo ID
+   *     tags: [Aluguel]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: integer
+   *         required: true
+   *         description: ID do aluguel
+   */
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {
