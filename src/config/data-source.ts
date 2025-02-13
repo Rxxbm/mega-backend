@@ -8,6 +8,8 @@ import { Cliente } from "../entities/Cliente";
 import { Obras } from "../entities/Obras";
 import { Classificacao } from "../entities/Classificacao";
 
+var isDev = process.env.NODE_ENV === "development";
+
 export const AppDataSource = new DataSource({
   type: "postgres",
   host: process.env.DB_HOST || "db",
@@ -30,9 +32,11 @@ export const AppDataSource = new DataSource({
   ], // Ajuste conforme sua estrutura
   migrations: ["src/migration/**/*.ts"],
   subscribers: ["src/subscriber/**/*.ts"],
-  extra: {
-    ssl: {
-      rejectUnauthorized: false, // Permite SSL sem validação do certificado
-    },
-  },
+  extra: isDev
+    ? {}
+    : {
+        ssl: {
+          rejectUnauthorized: false, // Permite SSL sem validação do certificado
+        },
+      },
 });
