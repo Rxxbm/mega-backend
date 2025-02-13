@@ -76,26 +76,31 @@ export class FornecedorController {
       },
     });
   }
+
   /**
    * @swagger
-   * /fornecedor/create:
-   *   post:
-   *     summary: Cria um novo fornecedor
+   * /fornecedor/{id}:
+   *   get:
+   *     summary: Retorna um fornecedor pelo ID
    *     tags: [Fornecedor]
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             $ref: '#/components/schemas/Fornecedor'
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: integer
+   *         required: true
+   *         description: ID do Fornecedor
    *     responses:
-   *       201:
-   *         description: Fornecedor criado com sucesso
+   *       200:
+   *         description: Fornecedor encontrado
    *         content:
    *           application/json:
    *             schema:
    *               $ref: '#/components/schemas/Fornecedor'
+   *       404:
+   *         description: Fornecedor não encontrado
    */
+
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
     const Fornecedor = await FornecedorRepository.findOneBy({
