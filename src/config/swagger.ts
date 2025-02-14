@@ -192,18 +192,22 @@ const swaggerOptions = {
             produtos: {
               type: "array",
               items: {
-                preco_unitario: {
-                  type: "number",
-                  description: "Preço do Produto do aluguel",
+                type: "object",
+                properties: {
+                  preco_unitario: {
+                    type: "number",
+                    description: "Preço do Produto do aluguel",
+                  },
+                  quantidade: {
+                    type: "integer",
+                    description: "Quantidade do produto",
+                  },
+                  produto: {
+                    type: "string",
+                    description: "ID do Produto do aluguel",
+                  },
                 },
-                quantidade: {
-                  type: "integer",
-                  description: "Quantidade do produto",
-                },
-                produto: {
-                  type: "string",
-                  description: "ID do Produto do aluguel",
-                },
+                required: ["preco_unitario", "quantidade", "produto"], // Se todos são obrigatórios
               },
             },
           },
@@ -212,7 +216,7 @@ const swaggerOptions = {
           type: "object",
           properties: {
             aluguel: {
-              type: "Aluguel ID",
+              type: "string",
               description: "Aluguel da nota",
             },
             data_movimentacao: {
@@ -226,6 +230,24 @@ const swaggerOptions = {
             observacao: {
               type: "string",
               description: "Observação da nota",
+            },
+            produtos_nota: {
+              type: "array",
+              description: "Lista de produtos da nota",
+              items: {
+                type: "object", // Indica que os itens são objetos
+                properties: {
+                  quantidade: {
+                    type: "integer",
+                    description: "Quantidade do produto",
+                  },
+                  produto: {
+                    type: "string", // ID do Produto
+                    description: "ID do Produto da nota",
+                  },
+                },
+                required: ["quantidade", "produto"], // Definindo que ambos são obrigatórios
+              },
             },
           },
         },

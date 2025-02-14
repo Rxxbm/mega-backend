@@ -8,8 +8,9 @@
     "skipLibCheck": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "rootDir": "./src",
+    "rootDir": "./",
     "outDir": "./dist",
     "strictPropertyInitialization": false
-  }
+  },
+  "include": ["src/**/*.ts", "tests/**/*.ts"]
 }

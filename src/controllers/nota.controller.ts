@@ -4,6 +4,7 @@ import { Request, Response } from "express";
 import { RouteResponse } from "../common/http-responses";
 import { notaRepository } from "../repositories/Nota";
 import { notaProdutoRepository } from "../repositories/NotaProduto";
+import { Nota } from "../entities/Nota";
 
 @Controller("/nota")
 export class notaController {
@@ -60,7 +61,6 @@ export class notaController {
 
     // Busca os dados paginados e o total de registros
     const [data, total] = await notaRepository.findAndCount({
-      relations: ["cliente", "obra", "produtos", "produtos.produto"],
       skip,
       take: limit,
     });
@@ -138,13 +138,13 @@ export class notaController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const nota = notaRepository.create(req.body);
+    const nota = notaRepository.create(req.body as Nota);
     await notaRepository.save(nota);
 
     for (const produtoData of req.body.produtos_nota) {
       const notaProduto = notaProdutoRepository.create({
         ...produtoData,
-        nota: nota[0].id,
+        nota: nota.id,
       });
       await notaProdutoRepository.save(notaProduto);
     }

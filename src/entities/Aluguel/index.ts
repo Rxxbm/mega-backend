@@ -1,19 +1,18 @@
-import { Entity, Column, ManyToOne, OneToMany, JoinColumn } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Cliente } from "../Cliente"; // Importando o modelo de Cliente
 import { Obras } from "../Obras"; // Importando o modelo de Obras
 import { BaseEntity } from "../BaseEntity";
-import { AluguelProduto } from "../AluguelProduto";
 
 @Entity("aluguel")
 export class Aluguel extends BaseEntity {
   @Column("varchar", { length: 255 })
   nome: string;
 
-  @ManyToOne(() => Cliente, (cliente) => cliente.alugueis)
+  @ManyToOne(() => Cliente)
   @JoinColumn({ name: "cliente_id" })
   cliente: Cliente;
 
-  @ManyToOne(() => Obras, (obra) => obra.alugueis)
+  @ManyToOne(() => Obras)
   @JoinColumn({ name: "obra_id" })
   obra: Obras;
 
@@ -22,9 +21,6 @@ export class Aluguel extends BaseEntity {
 
   @Column("date")
   data_devolucao: string;
-
-  @OneToMany(() => AluguelProduto, (aluguelProduto) => aluguelProduto.aluguel)
-  produtos: AluguelProduto[];
 
   @Column("decimal", { precision: 10, scale: 2 })
   subtotal: number;
@@ -36,4 +32,3 @@ export class Aluguel extends BaseEntity {
     return this.nome;
   }
 }
-export { AluguelProduto };

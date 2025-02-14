@@ -12,7 +12,7 @@ export class ProdutoNota extends BaseEntity {
   @Column("int")
   quantidade: number;
 
-  @ManyToOne(() => Nota, (nota) => nota.produtos_nota)
+  @ManyToOne(() => Nota)
   @JoinColumn({ name: "nota_id" })
   nota: Nota;
 }

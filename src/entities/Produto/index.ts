@@ -1,27 +1,14 @@
-import {
-  Entity,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  OneToMany,
-  ManyToMany,
-} from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, OneToMany } from "typeorm";
 import { BaseEntity } from "../BaseEntity";
 import { Classificacao } from "../Classificacao"; // Importando o modelo de Classificação
 import { Fornecedor } from "../Fornecedor"; // Importando o modelo de Fornecedor
-import { AluguelProduto } from "../Aluguel";
-import { Nota } from "../Nota";
-import { ProdutoNota } from "../ProdutoNota";
 
 @Entity("produto")
 export class Produto extends BaseEntity {
   @Column("varchar", { length: 255 })
   nome: string;
 
-  @ManyToMany(() => Nota, (nota) => nota.produtos_movimentados)
-  notas: Nota[];
-
-  @ManyToOne(() => Classificacao, (classificacao) => classificacao.produtos)
+  @ManyToOne(() => Classificacao)
   @JoinColumn({ name: "categoria_id" })
   categoria: Classificacao;
 
@@ -36,12 +23,6 @@ export class Produto extends BaseEntity {
 
   @Column("decimal", { nullable: true, default: null })
   indenizacao: number | null;
-
-  @OneToMany(() => AluguelProduto, (aluguelProduto) => aluguelProduto.produto)
-  alugueisProduto: AluguelProduto[];
-
-  @OneToMany(() => ProdutoNota, (produtoNota) => produtoNota.produto)
-  produtoNotas: ProdutoNota[];
 
   @ManyToOne(
     () => Fornecedor,
