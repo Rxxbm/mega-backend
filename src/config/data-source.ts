@@ -55,7 +55,9 @@ export const AppDataSource = new DataSource(
         migrations: ["src/migration/**/*.ts"],
         subscribers: ["src/subscriber/**/*.ts"],
         extra: {
-          ssl: process.env.NODE_ENV === "production",
+          ssl: {
+            rejectUnauthorized: process.env.NODE_ENV !== "production",
+          },
         },
       }
 );
