@@ -66,7 +66,7 @@ export class classificacaoController {
 
     // Retorna os dados e metadados de paginação
     return RouteResponse.success(res, {
-      ...data,
+      result: data,
       meta: {
         page,
         limit,
@@ -86,7 +86,7 @@ export class classificacaoController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da classificação
    *     responses:
@@ -135,7 +135,8 @@ export class classificacaoController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const classificacao = await classificacaoRepository.create(req.body);
+    const classificacao = classificacaoRepository.create(req.body);
+    await classificacaoRepository.save(classificacao);
     return RouteResponse.success(res, classificacao);
   }
 
@@ -149,7 +150,7 @@ export class classificacaoController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da classificação
    *     requestBody:
@@ -164,12 +165,12 @@ export class classificacaoController {
    *         content:
    *           application/json:
    *             schema:
-   *               $ref: '#/components/schemas/Classificação'
+   *               $ref: '#/components/schemas/Classificacao'
    */
 
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const classificacao = await classificacaoRepository.update(id, req.body);
     if (classificacao) {
       return RouteResponse.success(res, classificacao);
@@ -188,7 +189,7 @@ export class classificacaoController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da classificação
    *     responses:
@@ -198,7 +199,7 @@ export class classificacaoController {
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await classificacaoRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }

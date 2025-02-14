@@ -49,9 +49,6 @@ export class Cliente extends BaseEntity {
   @Column("varchar", { length: 255, nullable: true, default: null })
   contact: string | null;
 
-  @OneToMany(() => Aluguel, (aluguel) => aluguel.cliente)
-  alugueis: Aluguel[];
-
   toString(): string {
     return this.name;
   }

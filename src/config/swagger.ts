@@ -1,9 +1,5 @@
 import swaggerJsDoc from "swagger-jsdoc";
-import { Cliente } from "../entities/Cliente";
-import { Classificacao } from "../entities/Classificacao";
-import { Nota } from "../entities/Nota";
-import { Obras } from "../entities/Obras";
-import { Produto } from "../entities/Produto";
+
 const swaggerOptions = {
   definition: {
     openapi: "3.0.0",
@@ -32,7 +28,7 @@ const swaggerOptions = {
               description: "Razão social do fornecedor",
             },
             data: {
-              type: "date",
+              type: "string",
               description: "Data de cadastro do fornecedor",
             },
             nome_fantasia: {
@@ -76,7 +72,7 @@ const swaggerOptions = {
               description: "Email",
             },
             observacoes: {
-              type: "text",
+              type: "string",
               description: "Observações",
             },
 
@@ -115,7 +111,7 @@ const swaggerOptions = {
               description: "Endereço",
             },
             address_number: {
-              type: "int",
+              type: "integer",
               description: "Número do endereço",
             },
             address_cep: {
@@ -157,7 +153,7 @@ const swaggerOptions = {
               description: "Nome da classificação",
             },
             descricao: {
-              type: "text",
+              type: "string",
               description: "Descrição da classificação",
             },
           },
@@ -178,45 +174,80 @@ const swaggerOptions = {
               description: "Obra do aluguel",
             },
             data_inicio: {
-              type: "date",
+              type: "string",
               description: "Data de início do aluguel",
             },
             data_devolucao: {
-              type: "date",
+              type: "string",
               description: "Data de devolução do aluguel",
             },
             subtotal: {
-              type: "decimal",
+              type: "number",
               description: "Subtotal do aluguel",
             },
             observacao: {
-              type: "text",
+              type: "string",
               description: "Observação do aluguel",
             },
-            preco_unitario: {
-              type: "decimal",
-              description: "Preço unitário do aluguel",
+            produtos: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  preco_unitario: {
+                    type: "number",
+                    description: "Preço do Produto do aluguel",
+                  },
+                  quantidade: {
+                    type: "integer",
+                    description: "Quantidade do produto",
+                  },
+                  produto: {
+                    type: "string",
+                    description: "ID do Produto do aluguel",
+                  },
+                },
+                required: ["preco_unitario", "quantidade", "produto"], // Se todos são obrigatórios
+              },
             },
           },
         },
         Nota: {
           type: "object",
           properties: {
-            cliente: {
-              type: "Cliente ID",
-              description: "Cliente da nota",
-            },
-            obra: {
-              type: "Obra ID",
-              description: "Obra da nota",
+            aluguel: {
+              type: "string",
+              description: "Aluguel da nota",
             },
             data_movimentacao: {
-              type: "date",
+              type: "string",
               description: "Data da movimentação",
             },
+            tipo: {
+              type: "string",
+              description: "Tipo da nota",
+            },
             observacao: {
-              type: "text",
+              type: "string",
               description: "Observação da nota",
+            },
+            produtos_nota: {
+              type: "array",
+              description: "Lista de produtos da nota",
+              items: {
+                type: "object", // Indica que os itens são objetos
+                properties: {
+                  quantidade: {
+                    type: "integer",
+                    description: "Quantidade do produto",
+                  },
+                  produto: {
+                    type: "string", // ID do Produto
+                    description: "ID do Produto da nota",
+                  },
+                },
+                required: ["quantidade", "produto"], // Definindo que ambos são obrigatórios
+              },
             },
           },
         },
@@ -232,7 +263,7 @@ const swaggerOptions = {
               description: "Endereço da obra",
             },
             address_number: {
-              type: "int",
+              type: "integer",
               description: "Número do endereço da obra",
             },
             address_cep: {
@@ -264,40 +295,32 @@ const swaggerOptions = {
               type: "string",
               description: "Nome do produto",
             },
-            quantidade: {
-              type: "int",
-              description: "Quantidade do produto",
-            },
             categoria: {
               type: "Classificacao ID",
               description: "Categoria do produto",
             },
             preco: {
-              type: "decimal",
+              type: "number",
               description: "Preço do produto",
             },
             estoque: {
-              type: "int",
+              type: "integer",
               description: "Estoque do produto",
             },
             unidade: {
               type: "string",
               description: "Unidade do produto",
             },
-            idenizacao: {
-              type: "decimal",
+            indenizacao: {
+              type: "number",
               description: "Indenização do produto",
-            },
-            nota: {
-              type: "Nota ID",
-              description: "Nota do produto",
             },
           },
         },
       },
     },
   },
-  apis: ["./dist/controllers/*.js"], // Caminho para os arquivos onde a documentação será gerada
+  apis: ["./src/controllers/*.ts", "./dist/controllers/*.js"], // Caminho para os arquivos onde a documentação será gerada
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);

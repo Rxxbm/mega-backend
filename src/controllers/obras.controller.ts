@@ -65,7 +65,7 @@ export class ObrasController {
 
     // Retorna os dados e metadados de paginação
     return RouteResponse.success(res, {
-      ...data,
+      result: data,
       meta: {
         page,
         limit,
@@ -85,7 +85,7 @@ export class ObrasController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da obra
    *     responses:
@@ -134,7 +134,8 @@ export class ObrasController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const obras = await obrasRepository.create(req.body);
+    const obras = obrasRepository.create(req.body);
+    await obrasRepository.save(obras);
     return RouteResponse.success(res, obras);
   }
 
@@ -148,7 +149,7 @@ export class ObrasController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da obra
    *     requestBody:
@@ -170,7 +171,7 @@ export class ObrasController {
 
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const obras = await obrasRepository.update(id, req.body);
     if (obras) {
       return RouteResponse.success(res, obras);
@@ -189,7 +190,7 @@ export class ObrasController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID da obra
    *     responses:
@@ -201,7 +202,7 @@ export class ObrasController {
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await obrasRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }

@@ -87,7 +87,7 @@ export class FornecedorController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do Fornecedor
    *     responses:
@@ -150,7 +150,7 @@ export class FornecedorController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do fornecedor
    *     requestBody:
@@ -192,7 +192,7 @@ export class FornecedorController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do fornecedor
    *     responses:

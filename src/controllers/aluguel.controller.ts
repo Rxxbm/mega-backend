@@ -3,7 +3,10 @@ import { Delete, Get, Post, Put } from "../decorators/http/methods";
 import { Request, Response } from "express";
 import { RouteResponse } from "../common/http-responses";
 import { aluguelRepository } from "../repositories/Aluguel";
+import { Aluguel } from "../entities/Aluguel";
 import { aluguelProdutoRepository } from "../repositories/AluguelProduto";
+import { notaRepository } from "../repositories/Nota";
+import { plainToInstance } from "class-transformer"; // Import necessário
 
 @Controller("/aluguel")
 export class AluguelController {
@@ -50,12 +53,61 @@ export class AluguelController {
    *                     totalPages:
    *                       type: integer
    */
+
   @Get("/list")
   async getAll(req: Request, res: Response): Promise<void> {
-    const aluguel = await aluguelRepository.find({
-      relations: ["cliente", "obra", "produtos", "produtos.produto"],
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    // Busca os alugueis com paginação
+    const [alugueis, total] = await aluguelRepository.findAndCount({
+      skip,
+      take: limit,
     });
-    return RouteResponse.success(res, aluguel);
+
+    // Busca os produtos e notas associadas aos alugueis
+    const dados = await Promise.all(
+      alugueis.map(async (alugue) => {
+        // Converter para um objeto plano (evita problemas de serialização)
+        const aluguelJson = plainToInstance(Object, alugue);
+
+        // Buscar os produtos do aluguel
+        const aluguelProdutos = await aluguelProdutoRepository.find({
+          relations: ["produto"],
+          where: { aluguel: { id: alugue.id } },
+        });
+
+        // Buscar as notas do aluguel
+        const notas = await notaRepository.find({
+          where: { aluguel: { id: alugue.id } },
+        });
+
+        return {
+          ...aluguelJson, // Agora, aluguel pode ser espalhado corretamente
+          produtos: aluguelProdutos.map((ap) => ({
+            id: ap.produto.id,
+            nome: ap.produto.nome,
+            preco: ap.produto.preco,
+            quantidade: ap.quantidade,
+            preco_unitario: ap.preco_unitario,
+            unidade: ap.produto.unidade,
+            indenizacao: ap.produto.indenizacao,
+          })),
+          notas,
+        };
+      })
+    );
+
+    return RouteResponse.success(res, {
+      result: dados,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   }
 
   /**
@@ -68,7 +120,7 @@ export class AluguelController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do aluguel
    *     responses:
@@ -84,16 +136,94 @@ export class AluguelController {
 
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
+
+    // Busca o aluguel pelo ID com as relações necessárias
     const aluguel = await aluguelRepository.findOne({
       where: { id: id.toString() },
-      relations: ["cliente", "obra", "produtos", "produtos.produto"],
     });
-    if (aluguel) {
-      return RouteResponse.success(res, aluguel);
-    } else {
-      return RouteResponse.notFound(res, "Aluguel não encontrado");
-    }
+
+    // Se não encontrar, retorna erro
+    if (!aluguel) return RouteResponse.notFound(res, "Aluguel não encontrado");
+
+    // Converter para um objeto plano (evita problemas de serialização)
+    const aluguelJson = plainToInstance(Object, aluguel);
+
+    // Buscar os produtos do aluguel
+    const aluguelProdutos = await aluguelProdutoRepository.find({
+      where: {
+        aluguel: {
+          id: aluguel.id,
+        },
+      },
+      relations: ["produto", "aluguel"],
+    });
+
+    // Buscar as notas associadas ao aluguel
+    const notas = await notaRepository.find({
+      where: { aluguel: { id: aluguel.id } },
+    });
+
+    // Monta a resposta com os produtos e notas
+    const aluguelComProdutosENotas = {
+      ...aluguelJson,
+      produtos: aluguelProdutos.map((ap) => ({
+        id: ap.produto.id,
+        nome: ap.produto.nome,
+        preco: ap.produto.preco,
+        quantidade: ap.quantidade,
+        preco_unitario: ap.preco_unitario,
+        unidade: ap.produto.unidade,
+        indenizacao: ap.produto.indenizacao,
+      })),
+      notas,
+    };
+
+    return RouteResponse.success(res, aluguelComProdutosENotas);
+  }
+
+  /**
+   * @swagger
+   * /aluguel/{id}/notas:
+   *   get:
+   *     summary: Retorna notas associadas a um aluguel pelo ID
+   *     tags: [Aluguel]
+   *     parameters:
+   *       - in: path
+   *         name: id
+   *         schema:
+   *           type: string
+   *         required: true
+   *         description: ID do aluguel
+   *     responses:
+   *       200:
+   *         description: Nota encontrada
+   *         content:
+   *           application/json:
+   *             schema:
+   *               $ref: '#/components/schemas/Aluguel'
+   *       404:
+   *         description: Aluguel não encontrado
+   */
+
+  @Get("/:id/notas")
+  async getOneByNotas(req: Request, res: Response): Promise<void> {
+    const id = req.params.id;
+
+    // Busca o aluguel pelo ID com as relações necessárias
+    const aluguel = await aluguelRepository.findOne({
+      where: { id: id.toString() },
+    });
+
+    // Se não encontrar, retorna erro
+    if (!aluguel) return RouteResponse.notFound(res, "Aluguel não encontrado");
+
+    // Buscar as notas associadas ao aluguel
+    const notas = await notaRepository.find({
+      where: { aluguel: { id: aluguel.id } },
+    });
+
+    return RouteResponse.success(res, notas);
   }
 
   /**
@@ -115,13 +245,14 @@ export class AluguelController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const aluguel = aluguelRepository.create(req.body);
+    const aluguel: Aluguel = aluguelRepository.create(req.body as Aluguel);
     await aluguelRepository.save(aluguel);
+    const id = aluguel["id"];
 
     for (const produtoData of req.body.produtos) {
       const aluguelProduto = aluguelProdutoRepository.create({
         ...produtoData,
-        aluguel,
+        aluguel: id,
       });
       await aluguelProdutoRepository.save(aluguelProduto);
     }
@@ -139,7 +270,7 @@ export class AluguelController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do aluguel
    *     requestBody:
@@ -152,10 +283,9 @@ export class AluguelController {
    *       200:
    *         description: Aluguel atualizado
    */
-
   @Put("/:id")
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const aluguelData = req.body;
 
     const aluguel = await aluguelRepository.findOne({
@@ -190,14 +320,14 @@ export class AluguelController {
    *       - in: path
    *         name: id
    *         schema:
-   *           type: integer
+   *           type: string
    *         required: true
    *         description: ID do aluguel
    */
 
   @Delete("/:id")
   async delete(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await aluguelRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }
