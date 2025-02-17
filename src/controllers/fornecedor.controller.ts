@@ -67,7 +67,7 @@ export class FornecedorController {
 
     // Retorna os dados e metadados de paginação
     return RouteResponse.success(res, {
-      ...data,
+      result: data,
       meta: {
         page,
         limit,

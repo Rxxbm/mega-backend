@@ -10,7 +10,6 @@ import { Obras } from "../entities/Obras";
 import { Classificacao } from "../entities/Classificacao";
 
 const isTest = process.env.NODE_ENV === "test";
-const isProduction = process.env.NODE_ENV === "production";
 
 export const AppDataSource = new DataSource(
   isTest
@@ -55,12 +54,10 @@ export const AppDataSource = new DataSource(
         ],
         migrations: ["src/migration/**/*.ts"],
         subscribers: ["src/subscriber/**/*.ts"],
-        extra: isProduction
-          ? {
-              ssl: {
-                rejectUnauthorized: true,
-              },
-            }
-          : {},
+        extra: {
+          ssl: {
+            rejectUnauthorized: process.env.NODE_ENV !== "production",
+          },
+        },
       }
 );
