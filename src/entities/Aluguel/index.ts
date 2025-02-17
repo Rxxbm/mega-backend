@@ -1,4 +1,4 @@
-import { Entity, Column, ManyToOne, JoinColumn } from "typeorm";
+import { Entity, Column, ManyToOne, JoinColumn, Generated } from "typeorm";
 import { Cliente } from "../Cliente"; // Importando o modelo de Cliente
 import { Obras } from "../Obras"; // Importando o modelo de Obras
 import { BaseEntity } from "../BaseEntity";
@@ -7,6 +7,10 @@ import { BaseEntity } from "../BaseEntity";
 export class Aluguel extends BaseEntity {
   @Column("varchar", { length: 255 })
   nome: string;
+
+  @Column()
+  @Generated("increment")
+  codigo: number;
 
   @ManyToOne(() => Cliente)
   @JoinColumn({ name: "cliente_id" })
