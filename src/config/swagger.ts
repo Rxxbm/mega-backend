@@ -320,7 +320,7 @@ const swaggerOptions = {
       },
     },
   },
-  apis: ["./src/controllers/*.ts", "./dist/controllers/*.js"], // Caminho para os arquivos onde a documentação será gerada
+  apis: ["./src/controllers/*.ts", "./src/dist/controllers/*.js"], // Caminho para os arquivos onde a documentação será gerada
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
