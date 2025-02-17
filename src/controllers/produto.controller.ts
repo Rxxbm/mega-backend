@@ -59,6 +59,7 @@ export class ProdutoController {
 
     // Busca os dados paginados e o total de registros
     const [data, total] = await produtoRepository.findAndCount({
+      relations: ["categoria"],
       skip,
       take: limit,
     });
@@ -101,8 +102,9 @@ export class ProdutoController {
 
   @Get("/:id")
   async getOne(req: Request, res: Response): Promise<void> {
-    const produto = await produtoRepository.findOneBy({
-      id: req.params.id,
+    const produto = await produtoRepository.findOne({
+      where: { id: req.params.id },
+      relations: ["categoria"],
     });
     if (produto) {
       return RouteResponse.success(res, produto);
