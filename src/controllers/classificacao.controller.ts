@@ -3,6 +3,10 @@ import { Controller } from "../decorators/http/controller";
 import { Delete, Get, Post, Put } from "../decorators/http/methods";
 import { RouteResponse } from "../common/http-responses";
 import { classificacaoRepository } from "../repositories/Classificacao";
+import { Middleware } from "../decorators/http/middleware";
+import { ClassificacaoNotExists } from "../middlewares/classificacao/ClassificacaoNotExists";
+import { ValidatedDTO } from "../config/dto";
+import { CreateCategoriaDTO } from "../dtos/CreateCategoriaDTO";
 
 @Controller("/classificacao")
 export class classificacaoController {
@@ -101,6 +105,7 @@ export class classificacaoController {
    */
 
   @Get("/:id")
+  @Middleware(ClassificacaoNotExists)
   async getOne(req: Request, res: Response): Promise<void> {
     const classificacao = await classificacaoRepository.findOneBy({
       id: req.params.id,
@@ -134,10 +139,11 @@ export class classificacaoController {
    */
 
   @Post("/create")
+  @ValidatedDTO(CreateCategoriaDTO)
   async create(req: Request, res: Response): Promise<void> {
     const classificacao = classificacaoRepository.create(req.body);
     await classificacaoRepository.save(classificacao);
-    return RouteResponse.success(res, classificacao);
+    return RouteResponse.successCreated(res, classificacao);
   }
 
   /**
@@ -169,11 +175,15 @@ export class classificacaoController {
    */
 
   @Put("/:id")
+  @Middleware(ClassificacaoNotExists)
   async update(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
     const classificacao = await classificacaoRepository.update(id, req.body);
+    const newClassificacao = await classificacaoRepository.findOneBy({
+      id: id,
+    });
     if (classificacao) {
-      return RouteResponse.success(res, classificacao);
+      return RouteResponse.success(res, newClassificacao);
     } else {
       return RouteResponse.notFound(res, "Classificação não encontrada");
     }
@@ -198,6 +208,7 @@ export class classificacaoController {
    */
 
   @Delete("/:id")
+  @Middleware(ClassificacaoNotExists)
   async delete(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
     await classificacaoRepository.delete(id);

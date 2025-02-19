@@ -3,6 +3,10 @@ import { Controller } from "../decorators/http/controller";
 import { Delete, Get, Post, Put } from "../decorators/http/methods";
 import { RouteResponse } from "../common/http-responses";
 import { clienteRepository } from "../repositories/Cliente";
+import { ValidatedDTO } from "../config/dto";
+import { CreateClienteDTO } from "../dtos/CreateClienteDTO";
+import { Middleware } from "../decorators/http/middleware";
+import { ClientNotExists } from "../middlewares/cliente/ClientNotExists";
 
 @Controller("/cliente")
 export class ClienteController {
@@ -100,6 +104,7 @@ export class ClienteController {
    *         description: Cliente não encontrado
    */
   @Get("/:id")
+  @Middleware(ClientNotExists)
   async getOne(req: Request, res: Response): Promise<void> {
     const cliente = await clienteRepository.findOneBy({
       id: req.params.id,
@@ -131,12 +136,12 @@ export class ClienteController {
    *             schema:
    *               $ref: '#/components/schemas/Cliente'
    */
-
+  @ValidatedDTO(CreateClienteDTO)
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
     const cliente = clienteRepository.create(req.body);
     await clienteRepository.save(cliente);
-    return RouteResponse.success(res, cliente);
+    return RouteResponse.successCreated(res, cliente);
   }
 
   /**
@@ -163,11 +168,13 @@ export class ClienteController {
    */
 
   @Put("/:id")
+  @Middleware(ClientNotExists)
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     const cliente = await clienteRepository.update(id, req.body);
+    const newCliente = await clienteRepository.findOneBy({ id: id.toString() });
     if (cliente) {
-      return RouteResponse.success(res, cliente);
+      return RouteResponse.success(res, newCliente);
     } else {
       return RouteResponse.notFound(res, "Classificação não encontrada");
     }
@@ -192,8 +199,9 @@ export class ClienteController {
    */
 
   @Delete("/:id")
+  @Middleware(ClientNotExists)
   async delete(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await clienteRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }

@@ -1,6 +1,5 @@
 import { Entity, Column, OneToMany } from "typeorm";
 import { BaseEntity } from "../BaseEntity";
-import { Aluguel } from "../Aluguel";
 
 @Entity("cliente")
 export class Cliente extends BaseEntity {

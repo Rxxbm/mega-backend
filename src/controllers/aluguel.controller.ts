@@ -245,7 +245,15 @@ export class AluguelController {
 
   @Post("/create")
   async create(req: Request, res: Response): Promise<void> {
-    const aluguel: Aluguel = aluguelRepository.create(req.body as Aluguel);
+    const ultimoAluguel = await aluguelRepository.findOne({
+      order: { codigo: "DESC" },
+    });
+    const novoCodigo = (ultimoAluguel?.codigo || 0) + 1;
+
+    const aluguel: Aluguel = aluguelRepository.create({
+      codigo: novoCodigo,
+      ...req.body,
+    } as Aluguel);
     await aluguelRepository.save(aluguel);
     const id = aluguel["id"];
 
@@ -307,7 +315,43 @@ export class AluguelController {
       await aluguelProdutoRepository.save(aluguelProduto);
     }
 
-    return RouteResponse.success(res, aluguel);
+    const newAluguel = await aluguelRepository.findOne({
+      where: { id: id.toString() },
+    });
+
+    const aluguelJson = plainToInstance(Object, newAluguel);
+
+    // Buscar os produtos do aluguel
+    const aluguelProdutos = await aluguelProdutoRepository.find({
+      where: {
+        aluguel: {
+          id: aluguel.id,
+        },
+      },
+      relations: ["produto", "aluguel"],
+    });
+
+    // Buscar as notas associadas ao aluguel
+    const notas = await notaRepository.find({
+      where: { aluguel: { id: aluguel.id } },
+    });
+
+    // Monta a resposta com os produtos e notas
+    const aluguelComProdutosENotas = {
+      ...aluguelJson,
+      produtos: aluguelProdutos.map((ap) => ({
+        id: ap.produto.id,
+        nome: ap.produto.nome,
+        preco: ap.produto.preco,
+        quantidade: ap.quantidade,
+        preco_unitario: ap.preco_unitario,
+        unidade: ap.produto.unidade,
+        indenizacao: ap.produto.indenizacao,
+      })),
+      notas,
+    };
+
+    return RouteResponse.success(res, aluguelComProdutosENotas);
   }
 
   /**
