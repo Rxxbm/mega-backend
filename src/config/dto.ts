@@ -37,7 +37,6 @@ export function ValidatedDTO(dtoClass: any) {
       const errors = await validate(dtoInstance);
 
       if (errors.length > 0) {
-        console.log(errors);
         const errorMessages = extractErrorMessages(errors);
 
         return RouteResponse.badRequest(res, {

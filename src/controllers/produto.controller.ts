@@ -175,8 +175,12 @@ export class ProdutoController {
   async update(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
     const produto = await produtoRepository.update(id, req.body);
+    const newProduto = await produtoRepository.findOne({
+      where: { id },
+      relations: ["categoria"],
+    });
     if (produto) {
-      return RouteResponse.success(res, produto);
+      return RouteResponse.success(res, newProduto);
     } else {
       return RouteResponse.notFound(res, "Produto não encontrado");
     }

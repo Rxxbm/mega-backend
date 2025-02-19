@@ -22,7 +22,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 app.use(ignoreFavicon);
-app.use(morganMiddleware);
+if (process.env.NODE_ENV !== "test") app.use(morganMiddleware);
 
 // Função para iniciar o banco de dados e carregar as rotas
 export const initializeApp = async () => {
@@ -30,7 +30,7 @@ export const initializeApp = async () => {
   console.log("Banco de dados conectado!");
 
   registerControllers(app, __dirname + "/controllers");
-  listRoutes(app);
+  if (process.env.NODE_ENV !== "test") listRoutes(app);
 };
 
 export default app; // Exporta o app para ser usado nos testes

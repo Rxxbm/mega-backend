@@ -206,7 +206,11 @@ export class notaController {
       await notaProdutoRepository.save(notaProduto);
     }
 
-    return RouteResponse.success(res, nota);
+    const newNota = await notaRepository.findOne({
+      where: { id },
+    });
+
+    return RouteResponse.success(res, newNota);
   }
 
   /**

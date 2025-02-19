@@ -173,8 +173,9 @@ export class ObrasController {
   async update(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
     const obras = await obrasRepository.update(id, req.body);
+    const newObras = await obrasRepository.findOneBy({ id });
     if (obras) {
-      return RouteResponse.success(res, obras);
+      return RouteResponse.success(res, newObras);
     } else {
       return RouteResponse.notFound(res, "Classificação não encontrada");
     }
