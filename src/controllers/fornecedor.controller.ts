@@ -3,6 +3,10 @@ import { Controller } from "../decorators/http/controller";
 import { Delete, Get, Post, Put } from "../decorators/http/methods";
 import { RouteResponse } from "../common/http-responses";
 import { FornecedorRepository } from "../repositories/Fornecedor";
+import { Middleware } from "../decorators/http/middleware";
+import { FornecedorNotExists } from "../middlewares/fornecedor/FornecedorNotExists";
+import { ValidatedDTO } from "../config/dto";
+import { CreateFornecedorDTO } from "../dtos/CreateFornecedorDTO";
 
 @Controller("/fornecedor")
 export class FornecedorController {
@@ -135,10 +139,11 @@ export class FornecedorController {
    */
 
   @Post("/create")
+  @ValidatedDTO(CreateFornecedorDTO)
   async create(req: Request, res: Response): Promise<void> {
     const Fornecedor = FornecedorRepository.create(req.body);
     await FornecedorRepository.save(Fornecedor);
-    return RouteResponse.success(res, Fornecedor);
+    return RouteResponse.successCreated(res, Fornecedor);
   }
   /**
    * @swagger
@@ -170,8 +175,9 @@ export class FornecedorController {
    *         description: Fornecedor não encontrado
    */
   @Put("/:id")
+  @Middleware(FornecedorNotExists)
   async update(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await FornecedorRepository.update(id, req.body);
     const updatedFornecedor = await FornecedorRepository.findOneBy({
       id: req.params.id,
@@ -202,8 +208,9 @@ export class FornecedorController {
    *         description: Fornecedor não encontrado
    */
   @Delete("/:id")
+  @Middleware(FornecedorNotExists)
   async delete(req: Request, res: Response): Promise<void> {
-    const id = parseInt(req.params.id);
+    const id = req.params.id;
     await FornecedorRepository.delete(id);
     return RouteResponse.successEmpty(res);
   }
