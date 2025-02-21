@@ -18,8 +18,10 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install dependencies
+      - name: Install dependencies and build
         run: |
           npm install 
           npm run build
-          npm run test
+
+      - name: Testing with Jest
+        run: npm run test

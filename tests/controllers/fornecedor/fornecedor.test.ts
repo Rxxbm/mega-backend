@@ -50,7 +50,6 @@ describe("Testando o controlador de fornecedor - Rotas POST", () => {
     const response = await request(app)
       .post("/fornecedor/create")
       .send(fornecedor);
-    console.log(response.body);
     expect(response.status).toBe(201); // Supondo que a criação seja bem-sucedida
     expect(response.body.data).toHaveProperty("id"); // Supondo que o fornecedor criado tenha um id
     expect(response.body.data.razao_social).toBe(fornecedor.razao_social); // Verificando se o nome retornado é o mesmo que foi enviado
@@ -91,8 +90,6 @@ describe("Testando o controlador de fornecedor - Rotas PUT", () => {
       .put(`/fornecedor/${responseCreate.body.data.id}`)
       .send(fornecedorEditado);
 
-    console.log(response.body);
-
     expect(response.status).toBe(200); // Supondo que a edição seja bem-sucedida
     expect(response.body.data).toHaveProperty("id"); // Supondo que o fornecedor editado tenha um id
     expect(response.body.data.razao_social).toBe(
@@ -120,8 +117,6 @@ describe("Testando o controlador de fornecedor - Rotas DELETE", () => {
       .post("/fornecedor/create")
       .send(fornecedor);
     expect(responseCreate.status).toBe(201); // Supondo que a criação seja bem-sucedida
-
-    console.log(responseCreate.body.data.id);
 
     const response = await request(app).delete(
       `/fornecedor/${responseCreate.body.data.id}`
