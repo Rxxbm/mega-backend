@@ -3,6 +3,10 @@ import { Controller } from "../decorators/http/controller";
 import { Delete, Get, Post, Put } from "../decorators/http/methods";
 import { RouteResponse } from "../common/http-responses";
 import { obrasRepository } from "../repositories/Obras";
+import { ValidatedDTO } from "../config/dto";
+import { CreateObrasDTO } from "../dtos/CreateObraDTO";
+import { Middleware } from "../decorators/http/middleware";
+import { ObraNotExists } from "../middlewares/obras/ObraNotExists";
 
 @Controller("/obras")
 export class ObrasController {
@@ -133,10 +137,11 @@ export class ObrasController {
    */
 
   @Post("/create")
+  @ValidatedDTO(CreateObrasDTO)
   async create(req: Request, res: Response): Promise<void> {
     const obras = obrasRepository.create(req.body);
     await obrasRepository.save(obras);
-    return RouteResponse.success(res, obras);
+    return RouteResponse.successCreated(res, obras);
   }
 
   /**
@@ -170,6 +175,7 @@ export class ObrasController {
    */
 
   @Put("/:id")
+  @Middleware(ObraNotExists)
   async update(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
     const obras = await obrasRepository.update(id, req.body);
@@ -202,6 +208,7 @@ export class ObrasController {
    */
 
   @Delete("/:id")
+  @Middleware(ObraNotExists)
   async delete(req: Request, res: Response): Promise<void> {
     const id = req.params.id;
     await obrasRepository.delete(id);
